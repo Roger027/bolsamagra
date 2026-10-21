@@ -1,3 +1,5 @@
+import os
+
 import pytest
 import tomllib
 
@@ -61,3 +63,27 @@ def test_escrever_secrets_builds_google_callback_config(tmp_path, monkeypatch):
         "google-client-secret"
     )
     assert secrets["access"]["allowed_emails"] == ["owner@example.com"]
+
+
+def test_main_defaults_to_production_and_starts_streamlit(tmp_path, monkeypatch):
+    monkeypatch.setattr(iniciar_producao, "PASTA", tmp_path)
+    monkeypatch.delenv("APP_ENV", raising=False)
+    monkeypatch.delenv("PORT", raising=False)
+    (tmp_path / ".env").write_text("PORT=8765\n", encoding="utf-8")
+    monkeypatch.setattr(iniciar_producao, "exigir_variaveis", lambda: {})
+    monkeypatch.setattr(
+        iniciar_producao,
+        "escrever_secrets",
+        lambda _config: None,
+    )
+    comandos = []
+    monkeypatch.setattr(
+        iniciar_producao.subprocess,
+        "call",
+        lambda comando, cwd: comandos.append((comando, cwd)) or 0,
+    )
+
+    assert iniciar_producao.main() == 0
+    assert os.environ["APP_ENV"] == "production"
+    assert comandos[0][1] == tmp_path
+    assert "--server.port=8765" in comandos[0][0]

@@ -3,6 +3,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
 
 
 PASTA = Path(__file__).resolve().parent
@@ -91,7 +92,9 @@ def escrever_secrets(configuracao: dict[str, str | list[str]]) -> None:
 
 
 def main() -> int:
-    if os.getenv("APP_ENV", "").lower() != "production":
+    load_dotenv(PASTA / ".env")
+    os.environ.setdefault("APP_ENV", "production")
+    if os.environ["APP_ENV"].strip().lower() != "production":
         raise RuntimeError("APP_ENV precisa estar configurado como production.")
 
     configuracao = exigir_variaveis()

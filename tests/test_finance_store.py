@@ -36,12 +36,56 @@ def test_local_store_saves_and_reloads_multiple_csvs(tmp_path, monkeypatch):
     ]
 
 
+def test_local_store_normalizes_prefixed_csv_column_names(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.delenv("SUPABASE_URL", raising=False)
+    monkeypatch.delenv("SUPABASE_SERVICE_ROLE_KEY", raising=False)
+    monkeypatch.setenv("APP_ENV", "development")
+    obligations_path = tmp_path / "obrigacoes.csv"
+    obligations_path.write_text(
+        "+origem,nome,valor\nConta,Aluguel,1000\n",
+        encoding="utf-8",
+    )
+
+    data = FinanceStore(tmp_path).read_csv(obligations_path)
+
+    assert data.columns.tolist() == ["origem", "nome", "valor"]
+    assert data.loc[0, "origem"] == "Conta"
+
+
 def test_to_records_converts_missing_values_to_json_null():
     records = FinanceStore._to_records(
         pd.DataFrame([{"nome": "Conta", "valor": float("nan")}])
     )
 
     assert records == [{"nome": "Conta", "valor": None}]
+
+
+def test_store_loads_environment_from_project_directory(tmp_path, monkeypatch):
+    monkeypatch.delenv("SUPABASE_URL", raising=False)
+    monkeypatch.delenv("SUPABASE_SERVICE_ROLE_KEY", raising=False)
+    monkeypatch.setenv("APP_ENV", "development")
+    (tmp_path / ".env").write_text(
+        "SUPABASE_URL=https://example.supabase.co\n"
+        "SUPABASE_SERVICE_ROLE_KEY=test-key\n",
+        encoding="utf-8",
+    )
+    created_clients = []
+    monkeypatch.setattr(
+        finance_store,
+        "create_client",
+        lambda url, key: created_clients.append((url, key)) or object(),
+    )
+    monkeypatch.setattr(FinanceStore, "_load_cloud_state", lambda _self: None)
+
+    store = FinanceStore(tmp_path)
+
+    assert store.is_cloud
+    assert created_clients == [
+        ("https://example.supabase.co", "test-key"),
+    ]
 
 
 def test_cloud_store_commits_multiple_files_and_rejects_stale_writes(

@@ -2,15 +2,12 @@
 from pathlib import Path
 import os
 from datetime import datetime
-
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 from google import genai
 from dotenv import load_dotenv
-
 from modulos.finance_store import FinanceStore, FinanceStoreError
-
 
 def converter_valor_csv(valor):
     if pd.isna(valor):
@@ -152,7 +149,6 @@ st.sidebar.write(
 
 
 #Passo 6: Localizar os arquivos
-PASTA = Path(__file__).parent
 arquivo = PASTA / "obrigacoes.csv"
 arquivo_dividas = PASTA / "dividas_reais.csv"
 arquivo_pagamentos = PASTA / "pagamentos.csv"
@@ -267,11 +263,8 @@ with aba_contas:
             try:
                 nova_obrigacoes = obrigacoes.copy()
                 nova_obrigacoes.at[indice_conta, "status"] = "Pago"
-                class historico:
-                    ...
-
                 novo_historico = pd.concat(
-                    [historico, registro],
+                    [historico_pagamentos, registro],
                     ignore_index=True,
                 )
                 armazenamento.save_many({

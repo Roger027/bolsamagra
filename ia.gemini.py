@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from google import genai
 
 # Localiza a pasta principal do projeto
-PASTA_PROJETO = Path(__file__).resolve().parent.parent
+PASTA_PROJETO = Path(__file__).resolve().parent
 
 # Carrega as variáveis do arquivo .env
 load_dotenv(PASTA_PROJETO / ".env")
@@ -24,7 +24,7 @@ client = genai.Client(api_key=api_key)
 
 # Envia uma pergunta de teste
 resposta = client.models.generate_content(
-    model="gemini-3.5-flash",
+    model="gemini-2.5-flash-lite",
     contents=(
         "Você é um assistente financeiro. "
         "Responda em português: "

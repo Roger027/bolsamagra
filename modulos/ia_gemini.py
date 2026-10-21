@@ -1,11 +1,12 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from google import genai
 
 
-# Carrega as variáveis do arquivo .env
-load_dotenv()
+PASTA_PROJETO = Path(__file__).resolve().parents[1]
+load_dotenv(PASTA_PROJETO / ".env")
 
 
 # Recupera a chave do Gemini
@@ -26,7 +27,7 @@ client = genai.Client(api_key=api_key)
 
 # Faz um teste simples
 resposta = client.models.generate_content(
-    model="gemini-3.8-flash",
+    model="gemini-2.5-flash-lite",
     contents="Responda somente: TESTE DO BOLSA MAGRA FUNCIONANDO."
 )
 

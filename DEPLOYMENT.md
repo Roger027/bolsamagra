@@ -49,6 +49,11 @@ que tenham o endereço do site.
    - `AUTHORIZED_EMAILS`: e-mails autorizados, separados por vírgulas.
    - `GEMINI_API_KEY`: chave do Gemini; necessária somente para os recursos
      de IA.
+     Gere uma chave nova no Google AI Studio e configure-a somente como
+     variável privada no Render ou no `.env` local. Não reutilize credenciais
+     que já tenham sido incluídas em arquivos do repositório.
+     `OPENAI_API_KEY` é usada somente pelo teste isolado `teste_ia.py`; ela
+     não é necessária para o dashboard principal.
 4. Depois que o Render atribuir um endereço HTTPS ao serviço, crie o cliente
    OAuth Google usando esse endereço e URI de retorno terminada em
    `/oauth2callback`.
@@ -56,6 +61,10 @@ que tenham o endereço do site.
    `GOOGLE_OIDC_CLIENT_SECRET` como variáveis privadas e faça novo deploy.
    O inicializador monta o arquivo de configuração privado do Streamlit; os
    segredos não entram no repositório.
+
+Se uma chave real já foi publicada no repositório, revogue-a no provedor e
+gere outra antes de continuar. Remover o valor do arquivo não o remove do
+histórico Git.
 
 O site continua público na internet, mas o conteúdo financeiro exige login
 Google e validação da lista de convidados. O dashboard compartilha os mesmos

@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 import pandas as pd
+from dotenv import load_dotenv
 from supabase import Client, create_client
 
 
@@ -12,7 +13,8 @@ class FinanceStoreError(RuntimeError):
 
 class FinanceStore:
     def __init__(self, project_dir: Path):
-        self.project_dir = project_dir
+        self.project_dir = Path(project_dir).resolve()
+        load_dotenv(self.project_dir / ".env")
         self.supabase_url = os.getenv("SUPABASE_URL")
         self.supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
         self.production = os.getenv("APP_ENV", "development").lower() == (
@@ -86,13 +88,30 @@ class FinanceStore:
         if self.is_cloud:
             registros = self.payload.get(arquivo.name, [])
             if registros:
-                return pd.DataFrame(registros)
+                dados = pd.DataFrame(registros)
+                return self._normalize_columns(dados)
             return pd.DataFrame(columns=columns or [])
 
         if not arquivo.exists():
             return pd.DataFrame(columns=columns or [])
 
-        return pd.read_csv(arquivo, encoding="utf-8-sig")
+        dados = pd.read_csv(arquivo, encoding="utf-8-sig")
+        return self._normalize_columns(dados)
+
+    @staticmethod
+    def _normalize_columns(dados: pd.DataFrame) -> pd.DataFrame:
+        colunas_normalizadas = [
+            str(coluna).lstrip("\ufeff").strip().removeprefix("+")
+            for coluna in dados.columns
+        ]
+        if len(colunas_normalizadas) != len(set(colunas_normalizadas)):
+            raise FinanceStoreError(
+                "O arquivo contém nomes de colunas duplicados após "
+                "normalizar os cabeçalhos."
+            )
+
+        dados.columns = colunas_normalizadas
+        return dados
 
     @staticmethod
     def _to_records(dados: pd.DataFrame) -> list[dict]:
