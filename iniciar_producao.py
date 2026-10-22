@@ -45,7 +45,8 @@ def exigir_variaveis() -> dict[str, str]:
         "emails": emails,
     }
 
-def escribir_secrets(configuracao: dict[str, str | list[str]]) -> None:
+# CORRIGIDO: Modificado de 'escribir_secrets' para 'escrever_secrets'
+def escrever_secrets(configuracao: dict[str, str | list[str]]) -> None:
     conteudo = [
         "[access]",
         f"allowed_emails = {json.dumps(configuracao['emails'])}",
