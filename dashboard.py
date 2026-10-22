@@ -1,50 +1,20 @@
-#1 configuração do Streamlit e demais ferramentas
-from pathlib import Path
 import os
 from datetime import datetime
+from pathlib import Path
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 from google import genai
 from dotenv import load_dotenv
+from modulos.calculos import (
+    converter_valor_csv,
+    normalizar_valores_obrigacoes,
+)
 from modulos.finance_store import FinanceStore, FinanceStoreError
-
-def converter_valor_csv(valor):
-    if pd.isna(valor):
-        return 0.0
-
-    if isinstance(valor, (int, float)):
-        return float(valor)
-
-    texto = str(valor).strip().replace("R$", "").replace(" ", "")
-    if "," in texto:
-        texto = texto.replace(".", "").replace(",", ".")
-
-    return float(texto)
-
-
-def carregar_historico_pagamentos(armazenamento, arquivo):
-    colunas = [
-        "data_pagamento",
-        "tipo",
-        "origem",
-        "nome",
-        "vencimento",
-        "indice_registro",
-        "valor_pago",
-        "saldo_apos",
-        "status_apos",
-    ]
-
-    historico = armazenamento.read_csv(arquivo, columns=colunas)
-    faltantes = set(colunas) - set(historico.columns)
-    if faltantes:
-        raise ValueError(
-            "Colunas ausentes no histórico de pagamentos: "
-            + ", ".join(sorted(faltantes))
-        )
-
-    return historico[colunas]
+from modulos.pagamentos import (
+    carregar_historico_pagamentos,
+    ordenar_historico_pagamentos,
+)
 
 
 def exigir_acesso():
@@ -94,7 +64,6 @@ def exigir_acesso():
         st.stop()
 
 
-#2 configuração da pasta
 PASTA = Path(__file__).resolve().parent
 load_dotenv(PASTA / ".env")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -158,9 +127,11 @@ st.subheader("Painel de controle financeiro")
 
 #Passo 7: Carregar os dados
 try:
-    obrigacoes = armazenamento.read_csv(
-        arquivo,
-        columns=["origem", "nome", "valor", "vencimento", "status"],
+    obrigacoes = normalizar_valores_obrigacoes(
+        armazenamento.read_csv(
+            arquivo,
+            columns=["origem", "nome", "valor", "vencimento", "status"],
+        )
     )
     historico_pagamentos = carregar_historico_pagamentos(
         armazenamento,
@@ -453,18 +424,8 @@ st.subheader("Histórico de pagamentos")
 if historico_pagamentos.empty:
     st.info("Nenhum pagamento foi registrado ainda.")
 else:
-    historico_com_data = historico_pagamentos.assign(
-        _data_ordenacao=pd.to_datetime(
-            historico_pagamentos["data_pagamento"],
-            format="%d/%m/%Y",
-            errors="coerce",
-        )
-    )
     st.dataframe(
-        historico_com_data.sort_values(
-            "_data_ordenacao",
-            ascending=False,
-        ).drop(columns="_data_ordenacao"),
+        ordenar_historico_pagamentos(historico_pagamentos),
         width="stretch",
     )
 
