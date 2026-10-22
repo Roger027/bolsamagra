@@ -27,7 +27,7 @@ client = genai.Client(api_key=api_key)
 
 # Faz um teste simples
 resposta = client.models.generate_content(
-    model="gemini-2.5-flash-lite",
+    model="gemini-3.5-flash-lite",
     contents="Responda somente: TESTE DO BOLSA MAGRA FUNCIONANDO."
 )
 

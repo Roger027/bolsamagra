@@ -63,13 +63,17 @@ def test_to_records_converts_missing_values_to_json_null():
     assert records == [{"nome": "Conta", "valor": None}]
 
 
-def test_store_loads_environment_from_project_directory(tmp_path, monkeypatch):
+def test_store_loads_production_environment_from_project_directory(
+    tmp_path,
+    monkeypatch,
+):
     monkeypatch.delenv("SUPABASE_URL", raising=False)
     monkeypatch.delenv("SUPABASE_SERVICE_ROLE_KEY", raising=False)
-    monkeypatch.setenv("APP_ENV", "development")
+    monkeypatch.delenv("APP_ENV", raising=False)
     (tmp_path / ".env").write_text(
         "SUPABASE_URL=https://example.supabase.co\n"
-        "SUPABASE_SERVICE_ROLE_KEY=test-key\n",
+        "SUPABASE_SERVICE_ROLE_KEY=test-key\n"
+        "APP_ENV=production\n",
         encoding="utf-8",
     )
     created_clients = []
@@ -86,6 +90,26 @@ def test_store_loads_environment_from_project_directory(tmp_path, monkeypatch):
     assert created_clients == [
         ("https://example.supabase.co", "test-key"),
     ]
+
+
+def test_development_store_stays_local_with_cloud_credentials(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setenv("APP_ENV", "development")
+    monkeypatch.setenv("SUPABASE_URL", "https://example.supabase.co")
+    monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "private")
+    monkeypatch.setattr(
+        finance_store,
+        "create_client",
+        lambda *_args: pytest.fail(
+            "development mode must not connect to the shared database"
+        ),
+    )
+
+    store = FinanceStore(tmp_path)
+
+    assert not store.is_cloud
 
 
 def test_cloud_store_commits_multiple_files_and_rejects_stale_writes(

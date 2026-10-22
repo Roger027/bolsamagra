@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -20,6 +21,7 @@ ARQUIVOS = [
 
 
 def main() -> None:
+    os.environ["APP_ENV"] = "production"
     armazenamento = FinanceStore(PASTA)
     if not armazenamento.is_cloud:
         raise FinanceStoreError(

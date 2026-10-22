@@ -3,6 +3,27 @@ from pathlib import Path
 import pandas as pd
 
 
+def converter_valor_csv(valor):
+    """Converte valores numéricos em formato brasileiro ou padrão."""
+    if pd.isna(valor):
+        return 0.0
+
+    if isinstance(valor, (int, float)):
+        return float(valor)
+
+    texto = str(valor).strip().replace("R$", "").replace(" ", "")
+    if "," in texto:
+        texto = texto.replace(".", "").replace(",", ".")
+
+    return float(texto)
+
+
+def normalizar_valores_obrigacoes(obrigacoes):
+    obrigacoes = obrigacoes.copy()
+    obrigacoes["valor"] = obrigacoes["valor"].map(converter_valor_csv)
+    return obrigacoes
+
+
 # Localiza a pasta principal do projeto
 PASTA_PROJETO = Path(__file__).resolve().parent.parent
 ARQUIVO = PASTA_PROJETO / "obrigacoes.csv"
@@ -25,12 +46,13 @@ def carregar_obrigacoes():
             f"Colunas ausentes no CSV: {faltantes}"
         )
 
-    df["valor"] = pd.to_numeric(df["valor"], errors="coerce")
-
     if df["valor"].isna().any():
         raise ValueError("Há valores inválidos no arquivo.")
 
-    return df
+    try:
+        return normalizar_valores_obrigacoes(df)
+    except (TypeError, ValueError) as erro:
+        raise ValueError("Há valores inválidos no arquivo.") from erro
 
 
 def calcular_obrigacoes():

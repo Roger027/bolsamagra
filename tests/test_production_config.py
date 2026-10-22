@@ -69,7 +69,10 @@ def test_main_defaults_to_production_and_starts_streamlit(tmp_path, monkeypatch)
     monkeypatch.setattr(iniciar_producao, "PASTA", tmp_path)
     monkeypatch.delenv("APP_ENV", raising=False)
     monkeypatch.delenv("PORT", raising=False)
-    (tmp_path / ".env").write_text("PORT=8765\n", encoding="utf-8")
+    (tmp_path / ".env").write_text(
+        "APP_ENV=development\nPORT=8765\n",
+        encoding="utf-8",
+    )
     monkeypatch.setattr(iniciar_producao, "exigir_variaveis", lambda: {})
     monkeypatch.setattr(
         iniciar_producao,

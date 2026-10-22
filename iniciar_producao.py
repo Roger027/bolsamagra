@@ -12,7 +12,7 @@ PASTA = Path(__file__).resolve().parent
 def exigir_variaveis() -> dict[str, str]:
     nomes = [
         "SUPABASE_URL",
-        "SUPABASE_SERVICE_ROLE_KEY",
+        "SUPABASE_KEY",
         "STREAMLIT_COOKIE_SECRET",
         "AUTHORIZED_EMAILS",
     ]
@@ -35,7 +35,7 @@ def exigir_variaveis() -> dict[str, str]:
 
     return {
         "supabase_url": os.environ["SUPABASE_URL"].strip(),
-        "supabase_key": os.environ["SUPABASE_SERVICE_ROLE_KEY"].strip(),
+        "supabase_key": os.environ["SUPABASE_KEY"].strip(),
         "client_id": os.getenv("GOOGLE_OIDC_CLIENT_ID", "").strip(),
         "client_secret": os.getenv("GOOGLE_OIDC_CLIENT_SECRET", "").strip(),
         "cookie_secret": os.environ["STREAMLIT_COOKIE_SECRET"].strip(),
@@ -93,7 +93,7 @@ def escrever_secrets(configuracao: dict[str, str | list[str]]) -> None:
 
 def main() -> int:
     load_dotenv(PASTA / ".env")
-    os.environ.setdefault("APP_ENV", "production")
+    os.environ["APP_ENV"] = "production"
     if os.environ["APP_ENV"].strip().lower() != "production":
         raise RuntimeError("APP_ENV precisa estar configurado como production.")
 

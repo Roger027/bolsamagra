@@ -17,8 +17,9 @@ class FinanceStore:
         load_dotenv(self.project_dir / ".env")
         self.supabase_url = os.getenv("SUPABASE_URL")
         self.supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-        self.production = os.getenv("APP_ENV", "development").lower() == (
-            "production"
+        self.production = (
+            os.getenv("APP_ENV", "development").strip().lower()
+            == "production"
         )
 
         if self.production and not (self.supabase_url and self.supabase_key):
@@ -31,13 +32,9 @@ class FinanceStore:
         self.payload: dict[str, list[dict]] = {}
         self.version = 0
 
-        if self.supabase_url and self.supabase_key:
+        if self.production:
             self._connect()
             self._load_cloud_state()
-        elif self.production:
-            raise FinanceStoreError(
-                "O armazenamento em nuvem não está configurado."
-            )
 
     @property
     def is_cloud(self) -> bool:

@@ -1,22 +1,29 @@
 import os
-from pathlib import Path
+from google import genai
 
-from dotenv import load_dotenv
-from openai import OpenAI
-
-load_dotenv(Path(__file__).resolve().parent / ".env")
-
-api_key = os.getenv("OPENAI_API_KEY")
-if not api_key:
-    raise SystemExit(
-        "OPENAI_API_KEY não encontrada. Configure-a no arquivo .env."
-    )
-
-client = OpenAI(api_key=api_key)
-
-resposta = client.responses.create(
-    model="gpt-4.1-mini",
-    input="Responda apenas: conexão com a IA funcionando."
+client = genai.Client(
+    api_key=os.environ.get("GEMINI_API_KEY"),
 )
 
-print(resposta.output_text)
+tools = [
+    {
+        'type': 'google_search',
+    },
+]
+
+generation_config = {
+    'max_output_tokens': 65536,
+    'thinking_level': 'high',
+}
+
+interaction = client.interactions.create(
+    model='models/gemini-3.8-flash',
+    input="""INSERT_INPUT_HERE""",
+    tools=tools,
+    generation_config=generation_config,
+)
+
+print(interaction.steps[-1])
+
+
+
