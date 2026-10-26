@@ -1,0 +1,8 @@
+﻿nome,tipo,saldo_devedor,parcela,juros_mensal,parcelas_restantes,status
+Cartão Neon,Cartão,"719,68","280,32",0.0,0,Em andamento
+Cartão Atacadão,Cartão,0,0,0.0,0,Em andamento
+Cartão Bradesco,Cartão,"284,63",0,0.0,0,Em andamento
+Cartão Dibs,Cartão,0.0,279.04,0.0,0,Em andamento
+Cartão Mais,Cartão,0,0,0.0,0,Em andamento
+Vestcasa,Compra,"589,37","656,74",0.0,0,Em andamento
+Shopee,Compra,392.0,250.0,0.0,1,Em andamento
