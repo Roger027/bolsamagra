@@ -1,4 +1,3 @@
-
 def calcular_quinzena(receitas, nome):
     # Somar todas as entradas da quinzena
     receita_total = sum(receitas)
@@ -61,4 +60,5 @@ if __name__ == "__main__":
         "emergencia", "livre"
     ]:
         total = primeira[campo] + segunda[campo]
+
         print(f"{campo.title()}: R$ {total:.2f}")

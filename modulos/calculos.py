@@ -106,4 +106,6 @@ if __name__ == "__main__":
         resultado["detalhes_pendentes"][
             ["nome", "valor", "vencimento"]
         ].to_string(index=False)
+
+
     )

@@ -32,4 +32,5 @@ resposta = client.models.generate_content(
 )
 
 
+
 print(resposta.text)

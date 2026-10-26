@@ -1,8 +1,6 @@
 import os
-
 import pytest
 import tomllib
-
 import iniciar_producao
 from iniciar_producao import exigir_variaveis
 

@@ -1,4 +1,3 @@
-
 def calcular_quinzena(receitas, nome):
     # Somar todas as entradas da quinzena
     receita_total = sum(receitas)

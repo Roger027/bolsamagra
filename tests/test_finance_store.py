@@ -1,8 +1,6 @@
 from types import SimpleNamespace
-
 import pandas as pd
 import pytest
-
 import modulos.finance_store as finance_store
 from modulos.finance_store import FinanceStore, FinanceStoreError
 

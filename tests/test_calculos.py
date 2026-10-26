@@ -1,5 +1,4 @@
 import pandas as pd
-
 from modulos.calculos import normalizar_valores_obrigacoes
 
 

@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 COLUNAS_HISTORICO_PAGAMENTOS = [
     "data_pagamento",
     "tipo",
@@ -45,3 +44,4 @@ def ordenar_historico_pagamentos(historico):
         )
         .drop(columns="_data_ordenacao")
     )
+
