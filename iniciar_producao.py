@@ -80,14 +80,20 @@ def escrever_secrets(configuracao: dict[str, str | list[str]]) -> None:
             "[auth.google]",
             f"client_id = {json.dumps(configuracao['client_id'])}",
             f"client_secret = {json.dumps(configuracao['client_secret'])}",
-            'server_metadata_url = "https://google.com"',
-            "",
+            'server_metadata_url = '
+            '"https://accounts.google.com/.well-known/openid-configuration"',
         ])
         
     diretorio = PASTA / ".streamlit"
     diretorio.mkdir(exist_ok=True)
     arquivo_secrets = diretorio / "secrets.toml"
     arquivo_secrets.write_text("\n".join(conteudo), encoding="utf-8")
+    print("DIAGNÓSTICO OIDC:")
+    print("Arquivo secrets.toml:", arquivo_secrets.resolve())
+    print("Arquivo criado:", arquivo_secrets.exists())
+    print("Client ID configurado:", bool(configuracao["client_id"]))
+    print("Client Secret configurado:", bool(configuracao["client_secret"]))
+    print("E-mails autorizados:", len(configuracao["emails"]))
 
 def main() -> int:
     load_dotenv() 
