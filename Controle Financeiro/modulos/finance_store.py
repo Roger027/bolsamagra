@@ -77,7 +77,7 @@ class FinanceStore:
         if resposta.data:
             self.payload = resposta.data["payload"]
             self.version = int(resposta.data["version"])
-
+    
     def read_csv(
         self,
         arquivo: Path,
@@ -86,13 +86,32 @@ class FinanceStore:
         if self.is_cloud:
             registros = self.payload.get(arquivo.name, [])
             if registros:
-                return pd.DataFrame(registros)
+                dados = pd.DataFrame(registros)
+                return self._normalize_columns(dados)
             return pd.DataFrame(columns=columns or [])
 
         if not arquivo.exists():
             return pd.DataFrame(columns=columns or [])
 
-        return pd.read_csv(arquivo, encoding="utf-8-sig")
+        dados = pd.read_csv(arquivo, encoding="utf-8-sig")
+        return self._normalize_columns(dados)
+
+    @staticmethod
+    def _normalize_columns(dados: pd.DataFrame) -> pd.DataFrame:
+        colunas_normalizadas = [
+            str(coluna).lstrip("\ufeff").strip().removeprefix("+")
+            for coluna in dados.columns
+        ]
+
+        if len(colunas_normalizadas) != len(set(colunas_normalizadas)):
+            raise FinanceStoreError(
+                "O arquivo contém nomes de colunas duplicados após "
+                "normalizar os cabeçalhos."
+            )
+
+        dados = dados.copy()
+        dados.columns = colunas_normalizadas
+        return dados
 
     @staticmethod
     def _to_records(dados: pd.DataFrame) -> list[dict]:
